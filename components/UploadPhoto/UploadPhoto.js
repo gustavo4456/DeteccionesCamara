@@ -186,6 +186,9 @@ export default function ImagePickerExample() {
                   <Text style={styles.resultText}>
                     Resultado: {apiResponse.result}
                   </Text>
+                  <Text style={styles.resultText}>
+                    Precisión: {apiResponse.confidence.toFixed(2) + "%"}
+                  </Text>
                 </>
               )}
               {/* Mostrar el mensaje de error si hay un error */}

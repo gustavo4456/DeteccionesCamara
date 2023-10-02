@@ -261,6 +261,9 @@ export default function CameraPhone() {
                   <Text style={styles.resultText}>
                     {translatedStrings.result} {apiResponse.result}
                   </Text>
+                  <Text style={styles.resultText}>
+                    Precisión: {apiResponse.confidence.toFixed(2) + "%"}
+                  </Text>
                 </>
               )}
               {/* Mostrar el mensaje de error si hay un error */}
