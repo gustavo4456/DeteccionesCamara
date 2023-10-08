@@ -19,11 +19,11 @@ import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
 
 const DeteccionHistoryScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
-  const [selectedOptionOrder, setSelectedOptionOrder] = useState("desc"); // Valor predeterminado para el orden
+  const [selectedOptionOrder, setSelectedOptionOrder] = useState("desc");
   const [options, setOptions] = useState([]);
   const [detections, setDetections] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
-  const [selectedImage, setSelectedImage] = useState(null); // Estado para la imagen seleccionada
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
   const isFocused = useIsFocused();
 
   const fileUri = FileSystem.cacheDirectory + "tmp.jpg";
@@ -34,7 +34,6 @@ const DeteccionHistoryScreen = () => {
   ];
 
   useEffect(() => {
-    // Función para obtener las etiquetas
     const getTags = async () => {
       try {
         const storedToken = await SecureStore.getItemAsync("csrfToken");
@@ -55,7 +54,6 @@ const DeteccionHistoryScreen = () => {
         if (response.ok) {
           const data = await response.json();
           console.log("Etiquetas obtenidas exitosamente.");
-          // Agregar el nuevo elemento "Todo" al array de etiquetas
           const updatedData = [{ id: "todo", nombre: "Todo" }, ...data];
           setOptions(updatedData);
         } else {
@@ -66,7 +64,6 @@ const DeteccionHistoryScreen = () => {
       }
     };
 
-    // Función para obtener las detecciones de imágenes
     const getImgDetectionsUser = async () => {
       try {
         const storedToken = await SecureStore.getItemAsync("csrfToken");
@@ -76,10 +73,8 @@ const DeteccionHistoryScreen = () => {
           return;
         }
 
-        // Construir la cadena de consulta
         let queryString = `?orden=${selectedOptionOrder}`;
 
-        // Verificar si se ha seleccionado una etiqueta
         if (selectedOption) {
           queryString += `&etiqueta_id=${selectedOption}`;
         }
@@ -104,16 +99,13 @@ const DeteccionHistoryScreen = () => {
       }
     };
 
-    // Llamar a las funciones para obtener etiquetas y detecciones en el montaje del componente
     getTags();
     getImgDetectionsUser();
   }, [selectedOption, selectedOptionOrder, isFocused]);
 
   const formatDate = (dateStr) => {
-    // Crear un objeto Date a partir de la cadena de fecha
     const fecha = new Date(dateStr);
 
-    // Formatear la fecha y la hora según tus preferencias
     const options = {
       year: "numeric",
       month: "2-digit",
@@ -121,39 +113,157 @@ const DeteccionHistoryScreen = () => {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
-      hour12: false, // Usar formato de 24 horas
+      hour12: false,
     };
 
     return fecha.toLocaleString(undefined, options);
   };
 
+  const handleOptionSelect = (option) => {
+    setSelectedOption(option.id);
+  };
+
+  const handleOptionSelectOrder = (option) => {
+    setSelectedOptionOrder(option.nombre);
+  };
+
+  const toggleSelection = (id) => {
+    if (selectedImages.includes(id)) {
+      setSelectedImages(selectedImages.filter((imageId) => imageId !== id));
+    } else {
+      setSelectedImages([...selectedImages, id]);
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    try {
+      console.log("se oprimiooo borrarrrr.");
+      const storedToken = await SecureStore.getItemAsync("csrfToken");
+
+      console.log("paso el storedtoken wait securstore.");
+
+      if (!storedToken) {
+        console.error("Token CSRF no disponible.");
+        return;
+      }
+
+      console.log("paso el !storedtoken");
+
+      // Obtén las ID de las detecciones seleccionadas
+      const selectedDetectionIds = selectedImages;
+      console.log("paso la obtencions de los id");
+
+      // Verifica si hay detecciones seleccionadas
+      if (selectedDetectionIds.length === 0) {
+        console.warn("No se han seleccionado detecciones para eliminar.");
+        return;
+      }
+
+      console.log("paso la verificacion de que hay ids seleccionados.");
+
+      // Crea un objeto que contiene las ID de detecciones a eliminar
+      const data = {
+        deteccion_ids: selectedDetectionIds,
+      };
+
+      console.log("Paso la creacion del data");
+
+      const response = await fetch(urlApi.deleteDetectionsUsers, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": storedToken,
+        },
+        credentials: "include",
+        body: JSON.stringify(data), // Envía el array de IDs como JSON
+      });
+
+      console.log(
+        "paso el await fetch donde se envia la peticion de eliminar" + response
+      );
+
+      if (response.ok) {
+        console.log("Detecciones eliminadas exitosamente.");
+        // Actualiza la lista local eliminando las detecciones eliminadas
+        setDetections((prevDetections) =>
+          prevDetections.filter(
+            (detection) => !selectedDetectionIds.includes(detection.id)
+          )
+        );
+        console.log("Paso el resonse.ok");
+        // Limpia el array de imágenes seleccionadas
+        setSelectedImages([]);
+        console.log("PASO toodo");
+      } else {
+        console.error("Error al eliminar las detecciones.");
+      }
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    }
+  };
+
+  const renderDeteccionItem = (item) => (
+    <TouchableOpacity
+      onPress={() => toggleSelection(item.id)}
+      onLongPress={() => toggleSelection(item.id)}
+    >
+      <View
+        style={[
+          styles.row,
+          {
+            backgroundColor: selectedImages.includes(item.id)
+              ? "#f2f2f2"
+              : "transparent",
+            // Aplica el estilo de fila seleccionada desde tus estilos importados
+            ...(selectedImages.includes(item.id) ? styles.selectedRow : {}),
+          },
+        ]}
+      >
+        <Text style={styles.cell}>
+          {formatDate(item.deteccion.fecha_creacion)}
+        </Text>
+        <Text style={styles.cell}>{item.deteccion.resultado}</Text>
+        <Text style={styles.cell}>{item.deteccion.precision + "%"}</Text>
+        <Text style={styles.cell}>{item.etiqueta.nombre}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      {/* Cabecera de la tabla */}
+      <View style={styles.dropdownContainer}>
+        <CustomDropdown
+          options={options}
+          defaultValue="Selecciona una etiqueta"
+          onSelect={handleOptionSelect}
+        />
+        <CustomDropdown
+          options={optionsOrder}
+          defaultValue="Ordenar por fecha"
+          onSelect={handleOptionSelectOrder}
+        />
+      </View>
       <View style={styles.header}>
-        {/* <Text style={styles.headerText}>Imagen</Text> */}
         <Text style={styles.headerText}>Fecha</Text>
         <Text style={styles.headerText}>Resultado</Text>
         <Text style={styles.headerText}>Precisión</Text>
         <Text style={styles.headerText}>Zona</Text>
       </View>
-
-      {/* Datos de la tabla */}
       <FlatList
         data={detections}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.row}>
-            {/* <Text style={styles.cell}>{item.col1}</Text> */}
-            <Text style={styles.cell}>
-              {formatDate(item.deteccion.fecha_creacion)}
-            </Text>
-            <Text style={styles.cell}>{item.deteccion.resultado}</Text>
-            <Text style={styles.cell}>{item.deteccion.precision + "%"}</Text>
-            <Text style={styles.cell}>{item.etiqueta.nombre}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => renderDeteccionItem(item)}
       />
+      {selectedImages.length > 0 && (
+        <TouchableOpacity
+          style={styles.deleteSelectedButton}
+          onPress={handleDeleteSelected}
+        >
+          <Text style={styles.deleteSelectedButtonText}>
+            Eliminar Seleccionados
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

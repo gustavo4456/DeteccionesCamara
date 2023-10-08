@@ -115,7 +115,7 @@ const RegisterScreen = ({ navigation }) => {
     formData.append("email", email);
     formData.append("fecha_nacimiento", birthdate);
     formData.append("sexo", gender);
-    formData.append("foto_perfil", "ruta/a/la/imagen.jpg");
+    // formData.append("foto_perfil", "ruta/a/la/imagen.jpg");
     formData.append("first_name", firstName);
     formData.append("last_name", lastName);
     formData.append("is_active", true);

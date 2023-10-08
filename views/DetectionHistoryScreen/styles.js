@@ -5,6 +5,11 @@ export default StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  dropdownContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
   header: {
     flexDirection: "row",
     backgroundColor: "#f2f2f2",
@@ -27,5 +32,24 @@ export default StyleSheet.create({
   cell: {
     flex: 1,
     marginRight: 8, // Agregar margen derecho para separar las celdas
+  },
+
+  // Estilos para la fila seleccionada
+  selectedRow: {
+    backgroundColor: "lightblue",
+  },
+
+  // Estilos para el botón de eliminar seleccionados
+  deleteSelectedButton: {
+    backgroundColor: "red",
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    margin: 16,
+  },
+
+  deleteSelectedButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });

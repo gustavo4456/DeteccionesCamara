@@ -9,5 +9,7 @@ const urls = {
   registerUser: baseUrl + "/api/usuarios/registro/",
   tags: baseUrl + "/api/etiquetas/",
   getDetectionsUsers: baseUrl + "/api/detecciones-usuarios/",
+  deleteDetectionsUsers: baseUrl + "/api/delete-detecciones-usuarios/",
+  updateUser: baseUrl + "/api/usuarios/",
 };
 export default urls;
