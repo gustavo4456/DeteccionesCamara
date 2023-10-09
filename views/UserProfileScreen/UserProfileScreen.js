@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Image,
-  KeyboardAvoidingView,
-} from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import validator from "validator"; // Importa el paquete validator
 import * as ImagePicker from "expo-image-picker";
 import { isValid, parseISO } from "date-fns";
 import * as SecureStore from "expo-secure-store";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import imgUserDefault from "../../assets/usuario.png";
-import styles from "./styles"; // Asegúrate de importar tus estilos aquí
-import apiUrl from "../../api/apiUrls"; // Asegúrate de importar tu URL de la API aquí
+import styles from "./styles"; 
+import apiUrl from "../../api/apiUrls"; 
 
 const UserProfileScreen = () => {
   const [email, setEmail] = useState("");
@@ -253,11 +246,12 @@ const UserProfileScreen = () => {
   };
 
   return (
-    /* Este componente permite que la vista se ajuste automáticamente cuando el teclado aparece en iOS ajustando 
-    el padding y en otras plataformas ajustando la altura. */
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"} // Comportamiento del desplazamiento
+    <KeyboardAwareScrollView
+      style={styles.container} // Establece un estilo para el componente KeyboardAwareScrollView.
+      contentContainerStyle={styles.contentContainer} // Aplica tus estilos al contenedor de contenido interno.
+      resetScrollToCoords={{ x: 0, y: 0 }} // Restablece la posición de desplazamiento a las coordenadas (0, 0) en reinicios.
+      scrollEnabled={true} // Habilita el desplazamiento vertical.
+      extraScrollHeight={100} // Proporciona un espacio adicional de desplazamiento vertical de 100 unidades.
     >
       <Text style={styles.title}>Cambiar datos del usuario</Text>
 
@@ -335,7 +329,7 @@ const UserProfileScreen = () => {
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>
-    </KeyboardAvoidingView>
+    </KeyboardAwareScrollView>
   );
 };
 
