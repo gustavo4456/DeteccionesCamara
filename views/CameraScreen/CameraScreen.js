@@ -4,6 +4,7 @@ import CameraPhone from "../../components/CameraPhone/CameraPhone";
 
 import styles from "./styles";
 import UploadPhoto from "../../components/UploadPhoto/UploadPhoto";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const CamaraScreen = ({ navigation, route }) => {
   const [showCamera, setShowCamera] = useState(false);
@@ -43,13 +44,17 @@ const CamaraScreen = ({ navigation, route }) => {
 
       {!showGallery && !showCamera && (
         <>
-          <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-            <Text style={styles.buttonText}>Tomar Foto</Text>
-          </TouchableOpacity>
+          <CustomButton
+            text="Tomar Foto"
+            theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+            onPress={handleTakePhoto} // Se asigna la función que deseas ejecutar
+          />
 
-          <TouchableOpacity style={styles.button} onPress={handleSelectImage}>
-            <Text style={styles.buttonText}>Seleccionar Imagen</Text>
-          </TouchableOpacity>
+          <CustomButton
+            text="Seleccionar Imagen"
+            theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+            onPress={handleSelectImage} // Se asigna la función que deseas ejecutar
+          />
         </>
       )}
     </View>

@@ -14,6 +14,7 @@ import styles from "./styles";
 import urlsApi from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
 import CustomDropdown from "../OptionSelector/CustomDropdown";
+import CustomButton from "../CustomButton/CustomButton";
 
 export default function ImagePickerExample() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -177,9 +178,12 @@ export default function ImagePickerExample() {
                 defaultValue="Selecciona una etiqueta"
                 onSelect={handleOptionSelect}
               />
-              <TouchableOpacity style={styles.sendButton} onPress={sendImage}>
-                <Text style={styles.sendButtonText}>Enviar a la API</Text>
-              </TouchableOpacity>
+              
+              <CustomButton
+                text="Enviar a la API"
+                theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+                onPress={sendImage} // Se asigna la función que deseas ejecutar
+              />
               {/* Mostrar el resultado solo si apiResponse está definido */}
               {apiResponse && (
                 <>

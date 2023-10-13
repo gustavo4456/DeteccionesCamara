@@ -6,6 +6,7 @@ export default StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    backgroundColor: "#F5F5F5",
   },
   title: {
     fontSize: 20,

@@ -22,6 +22,7 @@ export default function DrawerNavigator() {
       <Drawer.Screen name="MyPhotos" component={Routes.MyPhotos} options={{ title: "Mis Imagenes" }} />
       <Drawer.Screen name="DetectionHistory" component={Routes.DeteccionHistory} options={{ title: "Historial Detecciones" }} />
       <Drawer.Screen name="UserProfile" component={Routes.UserProfile} options={{ title: "Perfil de Usuario" }} />
+      <Drawer.Screen name="Notification" component={Routes.Notificaciones} options={{ title: "Notificaciones" }} />
       <Drawer.Screen name="Configuration" component={Routes.Configuration} options={{ title: "Configuración" }} />
       
     </Drawer.Navigator>

@@ -7,8 +7,9 @@ import * as SecureStore from "expo-secure-store";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 import imgUserDefault from "../../assets/usuario.png";
-import styles from "./styles"; 
-import apiUrl from "../../api/apiUrls"; 
+import styles from "./styles";
+import apiUrl from "../../api/apiUrls";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const UserProfileScreen = () => {
   const [email, setEmail] = useState("");
@@ -256,9 +257,11 @@ const UserProfileScreen = () => {
       <Text style={styles.title}>Cambiar datos del usuario</Text>
 
       {/* Botón para seleccionar la imagen de perfil */}
-      <Button
-        title="Seleccionar Imagen de Perfil"
-        onPress={selectProfileImage}
+
+      <CustomButton
+        text="Seleccionar Imagen de Perfil"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={selectProfileImage} // Se asigna la función que deseas ejecutar
       />
 
       {/* Muestra la imagen de perfil seleccionada o una imagen por defecto */}
@@ -325,7 +328,12 @@ const UserProfileScreen = () => {
           resetMessage();
         }}
       />
-      <Button title="Guardar" onPress={handleRegister} />
+
+      <CustomButton
+        text="Guardar"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={handleRegister} // Se asigna la función que deseas ejecutar
+      />
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>

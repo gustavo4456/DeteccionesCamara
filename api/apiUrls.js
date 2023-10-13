@@ -12,5 +12,6 @@ const urls = {
   deleteDetectionsUsers: baseUrl + "/api/delete-detecciones-usuarios/",
   updateUser: baseUrl + "/api/usuarios/",
   getOrUpdateConfig: baseUrl + "/api/configuracion-usuario/",
+  getNotifications: baseUrl + "/api/get_notificaciones/",
 };
 export default urls;

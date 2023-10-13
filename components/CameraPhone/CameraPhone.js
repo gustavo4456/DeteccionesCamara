@@ -15,6 +15,7 @@ import translations from "./translations";
 import urlsApi from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
 import CustomDropdown from "../OptionSelector/CustomDropdown";
+import CustomButton from "../CustomButton/CustomButton";
 
 export default function CameraPhone() {
   const navigation = useNavigation();
@@ -247,14 +248,11 @@ export default function CameraPhone() {
                 onSelect={handleOptionSelect}
               />
 
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={sendImageToApi}
-              >
-                <Text style={styles.sendButtonText}>
-                  {translatedStrings.sendToApi}
-                </Text>
-              </TouchableOpacity>
+              <CustomButton
+                text="Enviar a la API"
+                theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+                onPress={sendImageToApi} // Se asigna la función que deseas ejecutar
+              />
               {/* Mostrar el resultado solo si apiResponse está definido */}
               {apiResponse && (
                 <>

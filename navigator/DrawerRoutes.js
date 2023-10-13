@@ -3,6 +3,7 @@ import DeteccionHistory from "../views/DetectionHistoryScreen/DeteccionHistorySc
 import MyPhotos from "../views/MyPhotosScreen/MyPhotosScreen";
 import Camera from "../views/CameraScreen/CameraScreen";
 import Configuration from "../views/ConfigurationScreen/ConfigurationScreen";
+import Notificaciones from "../views/NotificationScreen/NotificationScreen";
 
 export default {
   UserProfile,
@@ -10,4 +11,5 @@ export default {
   MyPhotos,
   Camera,
   Configuration,
+  Notificaciones,
 };

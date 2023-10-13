@@ -6,6 +6,7 @@ import * as SecureStore from "expo-secure-store";
 import { useIsFocused } from "@react-navigation/native";
 
 import styles from "./styles";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const ConfigurationScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -123,10 +124,11 @@ const ConfigurationScreen = () => {
         <Text>Tema Oscuro</Text>
         <Switch value={darkThemeEnabled} onValueChange={toggleDarkTheme} />
       </View>
-      <Button
-        style={styles.saveButton}
-        title="Guardar"
-        onPress={handleRegister}
+
+      <CustomButton
+        text="Guardar"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={handleRegister} // Se asigna la función que deseas ejecutar
       />
       <Text
         style={[

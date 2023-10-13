@@ -16,6 +16,7 @@ import * as FileSystem from "expo-file-system";
 import urlApi from "../../api/apiUrls";
 import styles from "./styles";
 import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const MyPhotosScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -124,29 +125,31 @@ const MyPhotosScreen = () => {
   };
 
   // Función para compartir la imagen seleccionada
-  const handleShareImage = async () => {
-    if (selectedImage) {
-      try {
-        console.log("que es Sharing.sharedAction " + Sharing.sharedAction);
+  const handleShareImage = () => {
+    const options = {
+      mimeType: "image/jpeg",
+      dialogTitle: "Share the image",
+      UTI: "image/jpeg",
+    };
 
-        // Descargar la imagen remota
-        const localUri = `${FileSystem.cacheDirectory}shared-image.jpg`;
+    FileSystem.downloadAsync(selectedImage, fileUri)
+      .then(({ uri }) => {
+        // setState(`Downloaded image to ${uri}`);
+      })
+      .catch((err) => {
+        // setState("Error downloading image");
+        console.log(JSON.stringify(err));
+      });
 
-        const { uri } = await FileSystem.downloadAsync(selectedImage, localUri);
-
-        const result = await Sharing.shareAsync(uri);
-
-        console.log("que es Sharing.sharedAction " + result.action);
-
-        if (result.action === Sharing.sharedAction) {
-          console.log("La imagen se compartió con éxito");
-        } else if (result.action === Sharing.dismissedAction) {
-          console.log("El usuario canceló la acción de compartir");
-        }
-      } catch (error) {
-        console.error("Error al compartir la imagen:", error.message);
-      }
-    }
+    // Sharing only allows one to share a file.
+    Sharing.shareAsync(fileUri, options)
+      .then((data) => {
+        // setState("Shared");
+      })
+      .catch((err) => {
+        // setState("Error sharing image");
+        console.log(JSON.stringify(err));
+      });
   };
 
   return (
@@ -201,37 +204,12 @@ const MyPhotosScreen = () => {
           )}
           {/* Botones "Compartir" */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.shareButton}
-              onPress={() => {
-                const options = {
-                  mimeType: "image/jpeg",
-                  dialogTitle: "Share the image",
-                  UTI: "image/jpeg",
-                };
-
-                FileSystem.downloadAsync(selectedImage, fileUri)
-                  .then(({ uri }) => {
-                    // setState(`Downloaded image to ${uri}`);
-                  })
-                  .catch((err) => {
-                    // setState("Error downloading image");
-                    console.log(JSON.stringify(err));
-                  });
-
-                // Sharing only allows one to share a file.
-                Sharing.shareAsync(fileUri, options)
-                  .then((data) => {
-                    // setState("Shared");
-                  })
-                  .catch((err) => {
-                    // setState("Error sharing image");
-                    console.log(JSON.stringify(err));
-                  });
-              }}
-            >
-              <Text style={styles.buttonText}>Compartir</Text>
-            </TouchableOpacity>
+            
+            <CustomButton
+              text="Compartir"
+              theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+              onPress={handleShareImage} // Se asigna la función que deseas ejecutar
+            />
           </View>
         </View>
       </Modal>

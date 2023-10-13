@@ -12,6 +12,7 @@ import * as SecureStore from "expo-secure-store"; // Importa SecureStore de Expo
 import urlsApi from "../../api/apiUrls";
 import styles from "./styles";
 import { useIsFocused } from "@react-navigation/native";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -63,15 +64,12 @@ const LoginScreen = ({ navigation }) => {
       if (isFocused && storedCsrfToken) {
         setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
-        const response = await fetch(
-          urlsApi.checkAuthentication,
-          {
-            headers: {
-              "X-CSRFToken": storedCsrfToken,
-            },
-            credentials: "include",
-          }
-        );
+        const response = await fetch(urlsApi.checkAuthentication, {
+          headers: {
+            "X-CSRFToken": storedCsrfToken,
+          },
+          credentials: "include",
+        });
 
         if (response.ok) {
           // Si el usuario está autenticado, redirigir a "Home"
@@ -102,10 +100,16 @@ const LoginScreen = ({ navigation }) => {
         onChangeText={setPassword}
       />
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      <Button title="Iniciar Sesión" onPress={handleLogin} />
-      <Button
-        title="Registrarse"
-        onPress={() => navigation.navigate("Register")}
+      
+      <CustomButton
+        text="Iniciar Sesión"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={handleLogin} // Se asigna la función que deseas ejecutar
+      />
+      <CustomButton
+        text="Registrarse"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={() => navigation.navigate("Register")} // Se asigna la función que deseas ejecutar
       />
       {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
     </View>

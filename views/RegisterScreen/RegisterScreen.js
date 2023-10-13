@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import validator from "validator"; // Importa el paquete validator
 import * as ImagePicker from "expo-image-picker";
-import { isValid, parseISO } from 'date-fns';
-
+import { isValid, parseISO } from "date-fns";
 
 import imgUserDefault from "../../assets/usuario.png";
 import styles from "./styles"; // Asegúrate de importar tus estilos aquí
 import apiUrl from "../../api/apiUrls"; // Asegúrate de importar tu URL de la API aquí
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -47,7 +47,7 @@ const RegisterScreen = ({ navigation }) => {
   const isValidDate = (date) => {
     // Define una expresión regular para el formato "AAAA-MM-DD"
     const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  
+
     // Valida si la fecha coincide con el patrón
     return datePattern.test(date);
   };
@@ -190,9 +190,11 @@ const RegisterScreen = ({ navigation }) => {
       <Text style={styles.title}>Registro de Usuario</Text>
 
       {/* Botón para seleccionar la imagen de perfil */}
-      <Button
-        title="Seleccionar Imagen de Perfil"
-        onPress={selectProfileImage}
+
+      <CustomButton
+        text="Seleccionar Imagen de Perfil"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={selectProfileImage} // Se asigna la función que deseas ejecutar
       />
 
       {/* Muestra la imagen de perfil seleccionada o una imagen por defecto */}
@@ -241,7 +243,11 @@ const RegisterScreen = ({ navigation }) => {
         value={gender}
         onChangeText={setGender}
       />
-      <Button title="Registrar" onPress={handleRegister} />
+      <CustomButton
+        text="Registrar"
+        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
+        onPress={handleRegister} // Se asigna la función que deseas ejecutar
+      />
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>
