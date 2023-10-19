@@ -4,16 +4,18 @@ import { View, Text, Switch, StyleSheet, Button } from "react-native";
 import apiUrl from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
 import { useIsFocused } from "@react-navigation/native";
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
-import styles from "./styles";
+import { lightStyles, darkStyles } from "./styles";
 import CustomButton from "../../components/CustomButton/CustomButton";
 
 const ConfigurationScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [darkThemeEnabled, setDarkThemeEnabled] = useState(false);
+  const [darkModeEnabled, setDarkModeEnabled] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const isFocused = useIsFocused();
   const [saveMessageSuccess, setSaveMessageSuccess] = useState(true);
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   useEffect(() => {
     const getConfigUser = async () => {
@@ -39,7 +41,8 @@ const ConfigurationScreen = () => {
           // && userJson.user_data.foto_perfil
           if (configUser) {
             setNotificationsEnabled(configUser.notificaciones_habilitadas);
-            setDarkThemeEnabled(configUser.tema_preferido);
+            setDarkModeEnabled(configUser.tema_preferido);
+            setIsDarkMode(configUser.tema_preferido);
           } else {
             console.log("configUser no tiene datos.");
           }
@@ -58,7 +61,7 @@ const ConfigurationScreen = () => {
 
   // Función para manejar el cambio en la configuración de tema oscuro
   const toggleDarkTheme = () => {
-    setDarkThemeEnabled((prevState) => !prevState);
+    setDarkModeEnabled((prevState) => !prevState);
     setSaveMessage("");
   };
 
@@ -71,7 +74,7 @@ const ConfigurationScreen = () => {
         // Datos de configuración que deseas actualizar
         const newConfig = {
           notificaciones_habilitadas: notificationsEnabled,
-          tema_preferido: darkThemeEnabled,
+          tema_preferido: darkModeEnabled,
         };
 
         // Realizar la solicitud de comprobación de autenticación
@@ -90,6 +93,7 @@ const ConfigurationScreen = () => {
           if (configUser) {
             setSaveMessage("Cambios realizados con éxito.");
             setSaveMessageSuccess(true);
+            setIsDarkMode(darkModeEnabled);
           } else {
             setSaveMessage("configUser no tiene datos.");
             setSaveMessageSuccess(false);
@@ -106,13 +110,15 @@ const ConfigurationScreen = () => {
     }
   };
 
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Configuración</Text>
 
       {/* Switch para habilitar/deshabilitar notificaciones */}
       <View style={styles.setting}>
-        <Text>Notificaciones</Text>
+        <Text style={styles.settingText}>Notificaciones</Text>
         <Switch
           value={notificationsEnabled}
           onValueChange={toggleNotifications}
@@ -121,8 +127,8 @@ const ConfigurationScreen = () => {
 
       {/* Switch para seleccionar tema oscuro/claro */}
       <View style={styles.setting}>
-        <Text>Tema Oscuro</Text>
-        <Switch value={darkThemeEnabled} onValueChange={toggleDarkTheme} />
+        <Text style={styles.settingText}>Tema Oscuro</Text>
+        <Switch value={darkModeEnabled} onValueChange={toggleDarkTheme} />
       </View>
 
       <CustomButton

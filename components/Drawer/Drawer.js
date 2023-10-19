@@ -91,7 +91,7 @@ export default function CustomDrawerContent(props) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#283541" }}>
+    <View style={{ flex: 1, backgroundColor: "#61C0BF" }}>
       <View
         style={{
           height: 250,

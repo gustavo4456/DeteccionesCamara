@@ -1,25 +1,49 @@
 import { StyleSheet } from "react-native";
 
-export default StyleSheet.create({
+export const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 16,
+    backgroundColor: "#fff", // Cambia el color de fondo en el modo claro
   },
-  image: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#000", // Cambia el color del texto en el modo claro
   },
-  text: {
-    marginBottom: 20,
+  description: {
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: "center",
+    color: "#333", // Cambia el color del texto explicativo en el modo claro
   },
-  button: {
-    backgroundColor: "blue",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+  buttonText: {
+    color: "white",
+  },
+});
+
+export const darkStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    backgroundColor: "#333", // Cambia el color de fondo en el modo oscuro
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#fff", // Cambia el color del texto en el modo oscuro
+  },
+  description: {
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: "center",
+    color: "#ccc", // Cambia el color del texto explicativo en el modo oscuro
   },
   buttonText: {
     color: "white",

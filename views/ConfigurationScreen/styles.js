@@ -1,14 +1,17 @@
 import { StyleSheet } from "react-native";
+// Estilos para el modo claro (light)
 
-export default StyleSheet.create({
+export const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: "#FFFFFF", // Color de fondo en el modo claro
   },
   heading: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 16,
+    color: "#000000", // Color del texto en el modo claro
   },
   setting: {
     flexDirection: "row",
@@ -17,22 +20,68 @@ export default StyleSheet.create({
     marginBottom: 16,
   },
   saveButton: {
-    backgroundColor: "#007bff", // Cambia el color de fondo del botón
-    color: "#fff", // Cambia el color del texto del botón
-    fontSize: 18, // Cambia el tamaño del texto del botón
-    paddingVertical: 12, // Ajusta el espacio vertical en el botón
-    borderRadius: 8, // Añade bordes redondeados al botón
+    backgroundColor: "#007bff", // Cambia el color de fondo del botón en el modo claro
+    color: "#fff", // Cambia el color del texto del botón en el modo claro
+    fontSize: 18,
+    paddingVertical: 12,
+    borderRadius: 8,
   },
   successMessage: {
-    marginTop: 10, // Espacio desde la parte superior del botón de guardar
-    color: "green", // Color del mensaje de éxito (puedes cambiar a "red" para mensajes de fallo)
-    fontSize: 16, // Tamaño de fuente del mensaje
-    textAlign: "center", // Alineación del texto al centro
+    marginTop: 10,
+    color: "green",
+    fontSize: 16,
+    textAlign: "center",
   },
   errorMessage: {
-    marginTop: 10, // Espacio desde la parte superior del botón de guardar
-    color: "red", // Color del mensaje de éxito (puedes cambiar a "red" para mensajes de fallo)
-    fontSize: 16, // Tamaño de fuente del mensaje
-    textAlign: "center", // Alineación del texto al centro
+    marginTop: 10,
+    color: "red",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  settingText: {
+    color: "#000000", // Color del texto de configuración en el modo claro
+  },
+});
+
+// Estilos para el modo oscuro (dark)
+export const darkStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#333", // Color de fondo en el modo oscuro
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "#FFFFFF", // Color del texto en el modo oscuro
+  },
+  setting: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  saveButton: {
+    backgroundColor: "#242424", // Cambia el color de fondo del botón en el modo oscuro
+    color: "#fff", // Cambia el color del texto del botón en el modo oscuro
+    fontSize: 18,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  successMessage: {
+    marginTop: 10,
+    color: "green",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  errorMessage: {
+    marginTop: 10,
+    color: "red",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  settingText: {
+    color: "#FFFFFF", // Color del texto de configuración en el modo oscuro
   },
 });

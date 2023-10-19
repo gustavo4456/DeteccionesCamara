@@ -3,9 +3,13 @@ import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import validator from "validator"; // Importa el paquete validator
 import * as ImagePicker from "expo-image-picker";
 import { isValid, parseISO } from "date-fns";
+import { AntDesign } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
 import imgUserDefault from "../../assets/usuario.png";
-import styles from "./styles"; // Asegúrate de importar tus estilos aquí
+import { lightStyles, darkStyles } from "./styles";
+
 import apiUrl from "../../api/apiUrls"; // Asegúrate de importar tu URL de la API aquí
 import CustomButton from "../../components/CustomButton/CustomButton";
 
@@ -27,6 +31,8 @@ const RegisterScreen = ({ navigation }) => {
 
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   useEffect(() => {
     requestPermission();
@@ -150,6 +156,7 @@ const RegisterScreen = ({ navigation }) => {
         setFirstName("");
         setLastName("");
         setGender("");
+        setProfileImage("");
 
         setIsError(false);
 
@@ -162,6 +169,14 @@ const RegisterScreen = ({ navigation }) => {
       }
     } catch (error) {
       console.error("Error en la solicitud:", error);
+    }
+  };
+
+  // Restablece el mensaje solo si hay contenido en message
+  const resetMessage = () => {
+    if (message) {
+      setMessage("");
+      setIsError(false);
     }
   };
 
@@ -179,79 +194,185 @@ const RegisterScreen = ({ navigation }) => {
       } else {
         const selectedAsset = result.assets[0];
         setProfileImage(selectedAsset.uri);
+        resetMessage();
       }
     } catch (error) {
       console.error("Error al seleccionar la imagen:", error);
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registro de Usuario</Text>
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
+  const theme = isDarkMode ? "dark" : "light"; // Establece el tema para los botones
+  const placeHolderColor = isDarkMode ? "white" : "black"; // Establece el tema para los botones
 
-      {/* Botón para seleccionar la imagen de perfil */}
+  return (
+    <KeyboardAwareScrollView
+      style={styles.container} // Establece un estilo para el componente KeyboardAwareScrollView.
+      contentContainerStyle={styles.contentContainer} // Aplica tus estilos al contenedor de contenido interno.
+      resetScrollToCoords={{ x: 0, y: 0 }} // Restablece la posición de desplazamiento a las coordenadas (0, 0) en reinicios.
+      scrollEnabled={true} // Habilita el desplazamiento vertical.
+      extraScrollHeight={100} // Proporciona un espacio adicional de desplazamiento vertical de 100 unidades.
+    >
+      <Text style={styles.title}>Registro de Usuario</Text>
 
       <CustomButton
         text="Seleccionar Imagen de Perfil"
-        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
-        onPress={selectProfileImage} // Se asigna la función que deseas ejecutar
+        theme={theme}
+        onPress={selectProfileImage}
       />
 
-      {/* Muestra la imagen de perfil seleccionada o una imagen por defecto */}
       {profileImage ? (
         <Image source={{ uri: profileImage }} style={styles.profileImage} />
       ) : (
         <Image source={imgUserDefault} style={styles.profileImage} />
       )}
 
-      {/* ... Campos de entrada para otros datos personales ... */}
+      <View
+        style={[
+          styles.inputContainer,
+          emailError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign
+          name="mail"
+          size={24}
+          color="gray"
+          style={styles.inputIcon}
+        />
 
-      <TextInput
-        style={[styles.input, emailError ? styles.inputError : null]}
-        placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={[styles.input, passwordError ? styles.inputError : null]}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <TextInput
-        style={[styles.input, firstNameError ? styles.inputError : null]}
-        placeholder="Nombre"
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <TextInput
-        style={[styles.input, lastNameError ? styles.inputError : null]}
-        placeholder="Apellido"
-        value={lastName}
-        onChangeText={setLastName}
-      />
-      <TextInput
-        style={[styles.input, birthdateError ? styles.inputError : null]}
-        placeholder="Fecha de nacimiento (AAAA-MM-DD)"
-        value={birthdate}
-        onChangeText={setBirthdate}
-      />
-      <TextInput
-        style={[styles.input, genderError ? styles.inputError : null]}
-        placeholder="Género"
-        value={gender}
-        onChangeText={setGender}
-      />
-      <CustomButton
-        text="Registrar"
-        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
-        onPress={handleRegister} // Se asigna la función que deseas ejecutar
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
+          placeholderTextColor={placeHolderColor}
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            resetMessage();
+            setEmailError(false);
+          }}
+        />
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          passwordError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign
+          name="lock"
+          size={24}
+          color="gray"
+          style={styles.inputIcon}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor={placeHolderColor}
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            resetMessage();
+            setPasswordError(false);
+          }}
+        />
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          firstNameError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign
+          name="user"
+          size={24}
+          color="gray"
+          style={styles.inputIcon}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          placeholderTextColor={placeHolderColor}
+          value={firstName}
+          onChangeText={(text) => {
+            setFirstName(text);
+            resetMessage();
+            setFirstNameError(false);
+          }}
+        />
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          lastNameError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign
+          name="user"
+          size={24}
+          color="gray"
+          style={styles.inputIcon}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Apellido"
+          placeholderTextColor={placeHolderColor}
+          value={lastName}
+          onChangeText={(text) => {
+            setLastName(text);
+            resetMessage();
+            setLastNameError(false);
+          }}
+        />
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          birthdateError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign
+          name="calendar"
+          size={24}
+          color="gray"
+          style={styles.inputIcon}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Fecha de nacimiento (AAAA-MM-DD)"
+          placeholderTextColor={placeHolderColor}
+          value={birthdate}
+          onChangeText={(text) => {
+            setBirthdate(text);
+            resetMessage();
+            setBirthdateError(false);
+          }}
+        />
+      </View>
+      <View
+        style={[
+          styles.inputContainer,
+          genderError ? styles.inputContainerError : null,
+        ]}
+      >
+        <AntDesign name="man" size={24} color="gray" style={styles.inputIcon} />
+        <TextInput
+          style={styles.input}
+          placeholder="Género"
+          placeholderTextColor={placeHolderColor}
+          value={gender}
+          onChangeText={(text) => {
+            setGender(text);
+            resetMessage();
+            setGenderError(false);
+          }}
+        />
+      </View>
+      <CustomButton text="Registrar" theme={theme} onPress={handleRegister} />
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>
-    </View>
+    </KeyboardAwareScrollView>
   );
 };
 

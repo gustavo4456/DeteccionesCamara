@@ -14,8 +14,9 @@ import { useIsFocused } from "@react-navigation/native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import urlApi from "../../api/apiUrls";
-import styles from "./styles";
+import { lightStyles, darkStyles } from "./styles";
 import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
 const DeteccionHistoryScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -25,6 +26,7 @@ const DeteccionHistoryScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const isFocused = useIsFocused();
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   const fileUri = FileSystem.cacheDirectory + "tmp.jpg";
 
@@ -34,6 +36,34 @@ const DeteccionHistoryScreen = () => {
   ];
 
   useEffect(() => {
+    const getConfigUser = async () => {
+      // Obtener el token CSRF desde SecureStore
+      const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
+
+      if (storedCsrfToken) {
+        // Realizar la solicitud de comprobación de autenticación
+        const response = await fetch(urlApi.getOrUpdateConfig, {
+          method: "GET",
+          headers: {
+            "X-CSRFToken": storedCsrfToken,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const configUser = await response.json();
+
+          // console.log(userJson.user_data.foto_perfil);
+          // && userJson.user_data.foto_perfil
+          if (configUser) {
+            setIsDarkMode(configUser.tema_preferido);
+          } else {
+            console.log("configUser no tiene datos.");
+          }
+        }
+      }
+    };
     const getTags = async () => {
       try {
         const storedToken = await SecureStore.getItemAsync("csrfToken");
@@ -101,6 +131,7 @@ const DeteccionHistoryScreen = () => {
 
     getTags();
     getImgDetectionsUser();
+    getConfigUser();
   }, [selectedOption, selectedOptionOrder, isFocused]);
 
   const formatDate = (dateStr) => {
@@ -228,6 +259,8 @@ const DeteccionHistoryScreen = () => {
       </View>
     </TouchableOpacity>
   );
+
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
 
   return (
     <View style={styles.container}>

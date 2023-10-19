@@ -6,11 +6,14 @@ import {
   Button,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store"; // Importa SecureStore de Expo
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
 import urlsApi from "../../api/apiUrls";
-import styles from "./styles";
+import { lightStyles, darkStyles } from "./styles";
 import { useIsFocused } from "@react-navigation/native";
 import CustomButton from "../../components/CustomButton/CustomButton";
 
@@ -20,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(false);
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   const handleLogin = async () => {
     try {
@@ -83,35 +87,67 @@ const LoginScreen = ({ navigation }) => {
     checkAuthentication();
   }, [isFocused]);
 
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
+  const theme = isDarkMode ? "dark" : "light"; // Establece el tema para los botones
+  const placeHolderColor = isDarkMode ? "white" : "black"; // Establece el tema para los botones
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inicio de Sesión</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <View style={styles.inputContainer}>
+        <AntDesign name="user" size={24} color="#007BFF" />
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
+          placeholderTextColor={placeHolderColor}
+          value={email}
+          onChangeText={(text) => {
+            setEmail(text);
+            setErrorMessage("");
+          }}
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <AntDesign name="lock" size={24} color="#007BFF" />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor={placeHolderColor}
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            setErrorMessage("");
+          }}
+        />
+      </View>
+
+      <View style={styles.inputContainerRegister}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Register")}
+          style={styles.registerLink}
+        >
+          <Text style={styles.registerText}>Registrarse</Text>
+        </TouchableOpacity>
+      </View>
+
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-      
-      <CustomButton
-        text="Iniciar Sesión"
-        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
-        onPress={handleLogin} // Se asigna la función que deseas ejecutar
-      />
-      <CustomButton
-        text="Registrarse"
-        theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
-        onPress={() => navigation.navigate("Register")} // Se asigna la función que deseas ejecutar
-      />
-      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
+
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          text="Iniciar Sesión"
+          theme={theme}
+          onPress={handleLogin}
+        />
+      </View>
+
+      {isLoading && (
+        <ActivityIndicator
+          size="large"
+          color="#007BFF"
+          style={styles.loading}
+        />
+      )}
     </View>
   );
 };

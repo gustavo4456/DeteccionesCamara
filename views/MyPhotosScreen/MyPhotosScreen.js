@@ -14,9 +14,10 @@ import { useIsFocused } from "@react-navigation/native";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import urlApi from "../../api/apiUrls";
-import styles from "./styles";
+import { lightStyles, darkStyles } from "./styles";
 import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
 import CustomButton from "../../components/CustomButton/CustomButton";
+import { useGlobalContext } from "../../contexts/GlobalContext";
 
 const MyPhotosScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -29,12 +30,42 @@ const MyPhotosScreen = () => {
 
   const fileUri = FileSystem.cacheDirectory + "tmp.jpg";
 
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
+
   const optionsOrder = [
     { id: 1, nombre: "asc" },
     { id: 2, nombre: "desc" },
   ];
 
   useEffect(() => {
+    const getConfigUser = async () => {
+      // Obtener el token CSRF desde SecureStore
+      const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
+
+      if (storedCsrfToken) {
+        // Realizar la solicitud de comprobación de autenticación
+        const response = await fetch(urlApi.getOrUpdateConfig, {
+          method: "GET",
+          headers: {
+            "X-CSRFToken": storedCsrfToken,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const configUser = await response.json();
+
+          // console.log(userJson.user_data.foto_perfil);
+          // && userJson.user_data.foto_perfil
+          if (configUser) {
+            setIsDarkMode(configUser.tema_preferido);
+          } else {
+            console.log("configUser no tiene datos.");
+          }
+        }
+      }
+    };
     // Función para obtener las etiquetas
     const getTags = async () => {
       try {
@@ -108,6 +139,7 @@ const MyPhotosScreen = () => {
     // Llamar a las funciones para obtener etiquetas y detecciones en el montaje del componente
     getTags();
     getImgDetectionsUser();
+    getConfigUser();
   }, [selectedOption, selectedOptionOrder, isFocused]);
 
   const handleOptionSelect = (option) => {
@@ -152,6 +184,8 @@ const MyPhotosScreen = () => {
       });
   };
 
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
+
   return (
     <View style={styles.container}>
       <View style={styles.dropdownContainer}>
@@ -178,7 +212,9 @@ const MyPhotosScreen = () => {
                 source={{ uri: item.deteccion.imagen }}
                 style={styles.image}
               />
-              <Text>{item.deteccion.resultado}</Text>
+              <Text style={styles.textResult}>{item.deteccion.resultado}</Text>
+              <Text style={styles.textResult}>{item.deteccion.precision}%</Text>
+              <Text style={styles.textResult}>{item.etiqueta.nombre}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -204,7 +240,6 @@ const MyPhotosScreen = () => {
           )}
           {/* Botones "Compartir" */}
           <View style={styles.buttonContainer}>
-            
             <CustomButton
               text="Compartir"
               theme="ligth" // Tema claro (se puede usar "dark" para oscuro)

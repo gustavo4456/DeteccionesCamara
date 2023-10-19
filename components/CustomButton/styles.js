@@ -2,11 +2,12 @@ import { StyleSheet } from "react-native";
 
 export default StyleSheet.create({
   button: {
-    padding: 10,
+    padding: 12,
     borderRadius: 5,
-    margin: 5,
+    marginVertical: 5,
     justifyContent: "center",
     alignItems: "center",
+    flexDirection: "row",
   },
   lightButton: {
     backgroundColor: "#61C0BF", // Color de fondo para el tema claro
@@ -16,6 +17,8 @@ export default StyleSheet.create({
   },
   buttonText: {
     color: "#FFF", // Color de texto por defecto
+    fontSize: 16, // Tamaño de fuente
+    fontWeight: "bold",
   },
   lightText: {
     color: "#000", // Color de texto para el tema claro
