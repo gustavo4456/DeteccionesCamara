@@ -30,7 +30,7 @@ export const darkStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     backgroundColor: "#333", // Cambia el color de fondo en el modo oscuro
   },
   title: {

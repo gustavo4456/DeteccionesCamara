@@ -5,6 +5,7 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     backgroundColor: "#fff",
+    width: "100%",
   },
   camera: {
     flex: 1,
