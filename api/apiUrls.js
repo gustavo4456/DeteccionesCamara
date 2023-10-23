@@ -13,5 +13,7 @@ const urls = {
   updateUser: baseUrl + "/api/usuarios/",
   getOrUpdateConfig: baseUrl + "/api/configuracion-usuario/",
   getNotifications: baseUrl + "/api/get_notificaciones/",
+  getUserNotifications: baseUrl + "/api/get-usuarios-notificaciones/",
+  updateUserNotifications: baseUrl + "/api/marcar-notificacion/",
 };
 export default urls;

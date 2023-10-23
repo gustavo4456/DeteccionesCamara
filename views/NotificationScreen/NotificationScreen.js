@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Modal,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import { useIsFocused } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 import styles from "./styles";
 
@@ -22,55 +30,161 @@ const formatDate = (dateStr) => {
 
 const NotificationScreen = () => {
   const [notifications, setNotifications] = useState([]);
+  const [selectedNotification, setSelectedNotification] = useState(null); // Estado para el mensaje completo
+  const [isModalVisible, setIsModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
   const isFocused = useIsFocused();
 
-  useEffect(() => {
-    const notificationsApi = async () => {
-      // Obtener el token CSRF desde SecureStore
-      const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
+  // Esta función realiza la solicitud de notificaciones y actualiza el estado
+  const fetchNotifications = useCallback(async () => {
+    const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
-      if (storedCsrfToken) {
-        // Realizar la solicitud de comprobación de autenticación
-        const response = await fetch(apiUrl.getNotifications, {
-          headers: {
-            "X-CSRFToken": storedCsrfToken,
-          },
-          credentials: "include",
+    if (storedCsrfToken) {
+      const response = await fetch(apiUrl.getUserNotifications, {
+        method: "GET",
+        headers: {
+          "X-CSRFToken": storedCsrfToken,
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        data.sort((a, b) => {
+          return (
+            new Date(b.notificacion.fecha).getTime() -
+            new Date(a.notificacion.fecha).getTime()
+          );
         });
 
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data) {
-            // Ordenar las notificaciones por fecha (de más reciente a más antigua)
-            data.sort((a, b) => {
-              return new Date(b.fecha).getTime() - new Date(a.fecha).getTime();
-            });
-            setNotifications(data);
-          } else {
-            console.log("data no tiene datos.");
-          }
-        }
+        setNotifications(data);
       }
-    };
-    notificationsApi();
-  }, [isFocused]);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Al cargar la pantalla, obtén las notificaciones
+    fetchNotifications();
+
+    // Configura un temporizador para consultar las notificaciones cada 30 segundos
+    const timer = setInterval(fetchNotifications, 30000); // 30 segundos en milisegundos
+
+    // Limpia el temporizador cuando el componente se desmonta o cuando la pantalla ya no está enfocada
+    return () => clearInterval(timer);
+  }, [fetchNotifications, isFocused]);
+
+  const handleNotificationPress = async (
+    notification,
+    idNotification,
+    isRead
+  ) => {
+    setSelectedNotification(notification);
+    setIsModalVisible(true); // Abrir el modal al hacer clic en una notificación
+
+    const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
+
+    if (storedCsrfToken && !isRead) {
+      const response = await fetch(
+        apiUrl.updateUserNotifications + idNotification + "/",
+        {
+          method: "PUT",
+          headers: {
+            "X-CSRFToken": storedCsrfToken,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ leido: true }),
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        // const data = await response.json();
+
+        console.log("SALIOOOO BIENNNNNNN ESTA EN TRUEEEEEE");
+      } else {
+        console.log("SALIO MALLLLLLLLLLLLLL");
+      }
+    }
+  };
+
+  const cropMessage = (notification) => {
+    // Límite de caracteres aquí
+    const characterLimit = 30;
+
+    // Verifica si la notificación excede el límite de caracteres
+    if (notification.length > characterLimit) {
+      // Si es más largo, recorta el mensaje y agrega "..."
+      notification = notification.substring(0, characterLimit) + "...";
+    }
+
+    return notification;
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Notificaciones</Text>
       <FlatList
         data={notifications}
-        keyExtractor={(item) => item.id.toString()} // Ajusta la clave según la estructura de tus notificaciones
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.notificationItem}>
-            <Text style={styles.notificationMessage}>{item.mensaje}</Text>
-            <Text style={styles.notificationDate}>
-              {formatDate(item.fecha)}
-            </Text>
-          </View>
+          <TouchableOpacity
+            onPress={() =>
+              handleNotificationPress(item.notificacion.mensaje, item.id, item.leido)
+            }
+            style={styles.notificationItem}
+          >
+            <View style={styles.notificationContent}>
+              <View style={styles.iconContainer}>
+                {item.leido ? (
+                  <Ionicons
+                    name="md-checkmark"
+                    size={32}
+                    color="green"
+                    style={styles.notificationIcon}
+                  />
+                ) : (
+                  <Ionicons
+                    name="chatbox-outline"
+                    size={32}
+                    color="red"
+                    style={styles.notificationIcon}
+                  />
+                )}
+              </View>
+              <View style={styles.textContainer}>
+                <Text
+                  style={[
+                    item.leido
+                      ? styles.notificationMessageRead
+                      : styles.notificationMessageUnread,
+                  ]}
+                >
+                  {cropMessage(item.notificacion.mensaje)}
+                </Text>
+                <Text style={styles.notificationDate}>
+                  {formatDate(item.notificacion.fecha)}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
         )}
       />
+
+      {/* Modal para mostrar el mensaje completo */}
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalMessage}>{selectedNotification}</Text>
+            <Button
+              title="Cerrar"
+              onPress={() => {
+                setSelectedNotification(null);
+                setIsModalVisible(false);
+              }}
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
