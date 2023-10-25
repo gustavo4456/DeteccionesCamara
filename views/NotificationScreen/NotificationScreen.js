@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { useGlobalContext } from "../../contexts/GlobalContext";
+
 
 import styles from "./styles";
 
@@ -29,49 +31,11 @@ const formatDate = (dateStr) => {
 };
 
 const NotificationScreen = () => {
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, setNotifications } = useGlobalContext([]);
   const [selectedNotification, setSelectedNotification] = useState(null); // Estado para el mensaje completo
   const [isModalVisible, setIsModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
   const isFocused = useIsFocused();
 
-  // Esta función realiza la solicitud de notificaciones y actualiza el estado
-  const fetchNotifications = useCallback(async () => {
-    const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
-
-    if (storedCsrfToken) {
-      const response = await fetch(apiUrl.getUserNotifications, {
-        method: "GET",
-        headers: {
-          "X-CSRFToken": storedCsrfToken,
-        },
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-
-        data.sort((a, b) => {
-          return (
-            new Date(b.notificacion.fecha).getTime() -
-            new Date(a.notificacion.fecha).getTime()
-          );
-        });
-
-        setNotifications(data);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    // Al cargar la pantalla, obtén las notificaciones
-    fetchNotifications();
-
-    // Configura un temporizador para consultar las notificaciones cada 30 segundos
-    const timer = setInterval(fetchNotifications, 30000); // 30 segundos en milisegundos
-
-    // Limpia el temporizador cuando el componente se desmonta o cuando la pantalla ya no está enfocada
-    return () => clearInterval(timer);
-  }, [fetchNotifications, isFocused]);
 
   const handleNotificationPress = async (
     notification,
