@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Switch, StyleSheet, Button } from "react-native";
+import { View, Text, Switch, StyleSheet, Button, Modal } from "react-native";
 
 import apiUrl from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
@@ -8,6 +8,7 @@ import { useGlobalContext } from "../../contexts/GlobalContext";
 
 import { lightStyles, darkStyles } from "./styles";
 import CustomButton from "../../components/CustomButton/CustomButton";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const ConfigurationScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -15,7 +16,12 @@ const ConfigurationScreen = () => {
   const [saveMessage, setSaveMessage] = useState("");
   const isFocused = useIsFocused();
   const [saveMessageSuccess, setSaveMessageSuccess] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
   const { isDarkMode, setIsDarkMode } = useGlobalContext();
+
+  const { isActiveNotifications, SetIsActiveNotifications } =
+    useGlobalContext();
 
   useEffect(() => {
     const getConfigUser = async () => {
@@ -23,6 +29,7 @@ const ConfigurationScreen = () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         setSaveMessage("");
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(apiUrl.getOrUpdateConfig, {
@@ -43,9 +50,14 @@ const ConfigurationScreen = () => {
             setNotificationsEnabled(configUser.notificaciones_habilitadas);
             setDarkModeEnabled(configUser.tema_preferido);
             setIsDarkMode(configUser.tema_preferido);
+            SetIsActiveNotifications(configUser.notificaciones_habilitadas);
+            setIsLoading(false);
           } else {
             console.log("configUser no tiene datos.");
+            setIsLoading(false);
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
@@ -67,6 +79,7 @@ const ConfigurationScreen = () => {
 
   const handleRegister = async () => {
     try {
+      setIsLoading(true);
       // Obtener el token CSRF desde SecureStore
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
@@ -94,19 +107,24 @@ const ConfigurationScreen = () => {
             setSaveMessage("Cambios realizados con éxito.");
             setSaveMessageSuccess(true);
             setIsDarkMode(darkModeEnabled);
+            SetIsActiveNotifications(notificationsEnabled);
+            setIsLoading(false);
           } else {
             setSaveMessage("configUser no tiene datos.");
             setSaveMessageSuccess(false);
+            setIsLoading(false);
           }
         } else {
           setSaveMessage("Hubo un fallo al guardar la configuración.");
           setSaveMessageSuccess(false);
+          setIsLoading(false);
         }
       }
     } catch (error) {
       console.error(error);
       setSaveMessage("Hubo un error al guardar la configuración.");
       setSaveMessageSuccess(false);
+      setIsLoading(false);
     }
   };
 
@@ -143,6 +161,12 @@ const ConfigurationScreen = () => {
       >
         {saveMessage}
       </Text>
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </View>
   );
 };

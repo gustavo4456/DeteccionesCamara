@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 
-export default StyleSheet.create({
+// Estilos para el tema claro
+export const lightStyles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
@@ -16,7 +17,6 @@ export default StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
-
   notificationDate: {
     fontSize: 12,
     color: "#777",
@@ -37,36 +37,110 @@ export default StyleSheet.create({
     fontSize: 18,
     marginBottom: 16,
   },
-
   notificationMessageRead: {
     fontSize: 16,
     marginBottom: 8,
-    // color: "lightgray", // Color de texto para notificaciones leídas
   },
   notificationMessageUnread: {
     fontSize: 16,
     marginBottom: 8,
-    color: "black", // Color de texto para notificaciones no leídas
     fontWeight: "bold",
   },
   notificationContent: {
-    flexDirection: "row", // Coloca los elementos en una fila horizontal
-    alignItems: "center", // Alinea los elementos verticalmente en el centro
+    flexDirection: "row",
+    alignItems: "center",
   },
-
   iconContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
-
   notificationIcon: {
-    marginRight: 8, // Añade un margen a la derecha del icono
+    marginRight: 8,
   },
-
   textContainer: {
-    flexDirection: "column", // Coloca los elementos en una columna vertical
-    alignItems: "flex-start", // Alinea los elementos a la izquierda
-    marginLeft: 16, // Agrega un margen a la izquierda para separarlos de los iconos
-    flex: 1, // Para que el texto y la fecha ocupen todo el espacio disponible
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginLeft: 16,
+    flex: 1,
+  },
+  inactiveNotificationsMessage: {
+    fontSize: 18,
+    color: "#555", // Color de texto para el modo claro
+    textAlign: "center",
+  },
+});
+
+// Estilos para el tema oscuro
+export const darkStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#333", // Cambiar el color de fondo en el tema oscuro
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "white", // Cambiar el color del título en el tema oscuro
+  },
+  notificationItem: {
+    backgroundColor: "#444", // Cambiar el color de fondo en el tema oscuro
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  notificationDate: {
+    fontSize: 12,
+    color: "#777",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "#222", // Cambiar el color de fondo en el tema oscuro
+    borderRadius: 8,
+    padding: 16,
+    width: "80%",
+  },
+  modalMessage: {
+    fontSize: 18,
+    marginBottom: 16,
+    color: "white", // Cambiar el color del mensaje en el tema oscuro
+  },
+  notificationMessageRead: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: "lightgray", // Cambiar el color de texto para notificaciones leídas
+  },
+  notificationMessageUnread: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: "bold",
+    color: "lightgray", // Cambiar el color de texto para notificaciones no leídas
+  },
+  notificationContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  notificationIcon: {
+    marginRight: 8,
+  },
+  textContainer: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginLeft: 16,
+    flex: 1,
+  },
+  inactiveNotificationsMessage: {
+    fontSize: 18,
+    color: "#BBB", // Color de texto para el modo oscuro
+    textAlign: "center",
   },
 });

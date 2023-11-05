@@ -5,12 +5,24 @@ const GlobalContext = createContext();
 
 // 2. Definir un proveedor
 export const GlobalContextProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(false); // Valor booleano de ejemplo
-  const [countNotifications, setCountNotifications] = useState(0); // Recuento de notificaciones
-  const [notifications, setNotifications] = useState([]); // Estado de notificaciones
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [countNotifications, setCountNotifications] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const [isActiveNotifications, SetIsActiveNotifications] = useState(true);
 
   return (
-    <GlobalContext.Provider value={{ isDarkMode, setIsDarkMode, countNotifications, setCountNotifications, notifications, setNotifications }}>
+    <GlobalContext.Provider
+      value={{
+        isDarkMode,
+        setIsDarkMode,
+        countNotifications,
+        setCountNotifications,
+        notifications,
+        setNotifications,
+        isActiveNotifications,
+        SetIsActiveNotifications,
+      }}
+    >
       {children}
     </GlobalContext.Provider>
   );

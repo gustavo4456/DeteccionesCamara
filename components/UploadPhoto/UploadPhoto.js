@@ -15,6 +15,7 @@ import urlsApi from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
 import CustomDropdown from "../OptionSelector/CustomDropdown";
 import CustomButton from "../CustomButton/CustomButton";
+import LoadingIndicator from "../LoadingIndicator/LoadingIndicator";
 
 export default function ImagePickerExample() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -23,19 +24,25 @@ export default function ImagePickerExample() {
   const [apiResponse, setApiResponse] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState(null);
 
   useEffect(() => {
     setSelectedOption(null);
+    setIsLoading(true);
     fetch(urlsApi.tags)
       .then((res) => res.json())
       .then((data) => {
         // console.log(data);
+        setIsLoading(false);
         setOptions(data);
       })
-      .catch((err) => console.log("Eror al traer las etiquetas: " + err));
+      .catch((err) => {
+        console.log("Eror al traer las etiquetas: " + err);
+        setIsLoading(false);
+      });
     requestPermission();
     pickImage();
   }, []);
@@ -178,7 +185,7 @@ export default function ImagePickerExample() {
                 defaultValue="Selecciona una etiqueta"
                 onSelect={handleOptionSelect}
               />
-              
+
               <CustomButton
                 text="Enviar a la API"
                 theme="ligth" // Tema claro (se puede usar "dark" para oscuro)
@@ -199,6 +206,11 @@ export default function ImagePickerExample() {
               {error && <Text style={styles.errorText}>{error}</Text>}
             </>
           )}
+        </View>
+      </Modal>
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainerIndicator}>
+          <LoadingIndicator />
         </View>
       </Modal>
     </View>

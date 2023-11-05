@@ -16,6 +16,7 @@ import urlsApi from "../../api/apiUrls";
 import * as SecureStore from "expo-secure-store";
 import CustomDropdown from "../OptionSelector/CustomDropdown";
 import CustomButton from "../CustomButton/CustomButton";
+import LoadingIndicator from "../LoadingIndicator/LoadingIndicator";
 
 export default function CameraPhone() {
   const navigation = useNavigation();
@@ -28,19 +29,25 @@ export default function CameraPhone() {
   const [apiResponse, setApiResponse] = useState(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState(null);
   const [options, setOptions] = useState(null);
 
   useEffect(() => {
+    setIsLoading(true);
     setSelectedOption(null);
     fetch(urlsApi.tags)
       .then((res) => res.json())
       .then((data) => {
         // console.log(data);
         setOptions(data);
+        setIsLoading(false);
       })
-      .catch((err) => console.log("Eror al traer las etiquetas: " + err));
+      .catch((err) => {
+        console.log("Eror al traer las etiquetas: " + err);
+        setIsLoading(false);
+      });
   }, []);
 
   const handleOptionSelect = (option) => {
@@ -226,7 +233,7 @@ export default function CameraPhone() {
             onPress={closeModal}
           >
             <Text style={styles.modalCloseButtonText}>
-              {translatedStrings.close}
+              Cerrar
             </Text>
           </TouchableOpacity>
           {/* Mostrar el indicador de carga solo cuando se está enviando la imagen */}
@@ -268,6 +275,12 @@ export default function CameraPhone() {
               {error && <Text style={styles.errorText}>{error}</Text>}
             </>
           )}
+        </View>
+      </Modal>
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainerIndicator}>
+          <LoadingIndicator />
         </View>
       </Modal>
     </View>

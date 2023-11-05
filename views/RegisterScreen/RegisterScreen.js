@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Image,
+  Modal,
+} from "react-native";
 import validator from "validator"; // Importa el paquete validator
 import * as ImagePicker from "expo-image-picker";
 import { isValid, parseISO } from "date-fns";
@@ -12,6 +20,7 @@ import { lightStyles, darkStyles } from "./styles";
 
 import apiUrl from "../../api/apiUrls"; // Asegúrate de importar tu URL de la API aquí
 import CustomButton from "../../components/CustomButton/CustomButton";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const RegisterScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -31,6 +40,7 @@ const RegisterScreen = ({ navigation }) => {
 
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
@@ -62,6 +72,7 @@ const RegisterScreen = ({ navigation }) => {
     // Valida los campos antes de enviar la solicitud
 
     setIsError(true);
+    setIsLoading(true);
 
     setEmailError(false);
     setPasswordError(false);
@@ -105,11 +116,14 @@ const RegisterScreen = ({ navigation }) => {
     if (!profileImage) {
       // Si no se seleccionó una imagen de perfil
       setIsError(true);
+      // hasError = true;
+      setIsLoading(false);
       setMessage("Por favor, selecciona una imagen de perfil.");
       return;
     }
 
     if (hasError) {
+      setIsLoading(false);
       setIsError(true);
       setMessage("Por favor, corrige los errores en el formulario.");
       return;
@@ -161,13 +175,16 @@ const RegisterScreen = ({ navigation }) => {
         setIsError(false);
 
         setMessage("Registro exitoso");
+        setIsLoading(false);
       } else {
         // Hubo un error en la solicitud
         setIsError(true);
+        setIsLoading(false);
         console.error("Error en el registro");
         setMessage("Error en el registro");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error en la solicitud:", error);
     }
   };
@@ -372,6 +389,12 @@ const RegisterScreen = ({ navigation }) => {
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </KeyboardAwareScrollView>
   );
 };

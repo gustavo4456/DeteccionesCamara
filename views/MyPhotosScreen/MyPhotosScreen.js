@@ -18,6 +18,7 @@ import { lightStyles, darkStyles } from "./styles";
 import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import { useGlobalContext } from "../../contexts/GlobalContext";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const MyPhotosScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -27,6 +28,7 @@ const MyPhotosScreen = () => {
   const [modalVisible, setModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
   const [selectedImage, setSelectedImage] = useState(null); // Estado para la imagen seleccionada
   const isFocused = useIsFocused();
+  const [isLoading, setIsLoading] = useState(false);
 
   const fileUri = FileSystem.cacheDirectory + "tmp.jpg";
 
@@ -43,6 +45,7 @@ const MyPhotosScreen = () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(urlApi.getOrUpdateConfig, {
           method: "GET",
@@ -59,19 +62,25 @@ const MyPhotosScreen = () => {
           // console.log(userJson.user_data.foto_perfil);
           // && userJson.user_data.foto_perfil
           if (configUser) {
+            setIsLoading(false);
             setIsDarkMode(configUser.tema_preferido);
           } else {
+            setIsLoading(false);
             console.log("configUser no tiene datos.");
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
     // Función para obtener las etiquetas
     const getTags = async () => {
       try {
+        setIsLoading(true);
         const storedToken = await SecureStore.getItemAsync("csrfToken");
 
         if (!storedToken) {
+          setIsLoading(false);
           console.error("Token CSRF no disponible.");
           return;
         }
@@ -86,14 +95,17 @@ const MyPhotosScreen = () => {
 
         if (response.ok) {
           const data = await response.json();
+          setIsLoading(false);
           console.log("Etiquetas obtenidas exitosamente.");
           // Agregar el nuevo elemento "Todo" al array de etiquetas
           const updatedData = [{ id: "todo", nombre: "Todo" }, ...data];
           setOptions(updatedData);
         } else {
+          setIsLoading(false);
           console.error("Error al obtener las etiquetas.");
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Error en la solicitud:", error);
       }
     };
@@ -101,9 +113,11 @@ const MyPhotosScreen = () => {
     // Función para obtener las detecciones de imágenes
     const getImgDetectionsUser = async () => {
       try {
+        setIsLoading(true);
         const storedToken = await SecureStore.getItemAsync("csrfToken");
 
         if (!storedToken) {
+          setIsLoading(false);
           console.error("Token CSRF no disponible.");
           return;
         }
@@ -126,12 +140,15 @@ const MyPhotosScreen = () => {
 
         if (response.ok) {
           const data = await response.json();
+          setIsLoading(false);
           console.log("Detecciones obtenidas exitosamente.");
           setDetections(data.detecciones);
         } else {
+          setIsLoading(false);
           console.error("Error al obtener las detecciones.");
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Error en la solicitud:", error);
       }
     };
@@ -246,6 +263,11 @@ const MyPhotosScreen = () => {
               onPress={handleShareImage} // Se asigna la función que deseas ejecutar
             />
           </View>
+        </View>
+      </Modal>
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainerIndicator}>
+          <LoadingIndicator />
         </View>
       </Modal>
     </View>

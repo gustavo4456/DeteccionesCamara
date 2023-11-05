@@ -22,8 +22,46 @@ export default function DrawerNavigator() {
   const { notifications, setNotifications } = useGlobalContext([]);
   const { countNotifications, setCountNotifications } = useGlobalContext();
   const isFocused = useIsFocused();
+  const { isActiveNotifications, SetIsActiveNotifications } =
+    useGlobalContext();
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   useEffect(() => {
+    const getConfigUser = async () => {
+      // Obtener el token CSRF desde SecureStore
+      const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
+
+      if (storedCsrfToken) {
+        // Realizar la solicitud de comprobación de autenticación
+        const response = await fetch(urlsApi.getOrUpdateConfig, {
+          method: "GET",
+          headers: {
+            "X-CSRFToken": storedCsrfToken,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const configUser = await response.json();
+
+          // console.log(userJson.user_data.foto_perfil);
+          // && userJson.user_data.foto_perfil
+          if (configUser) {
+            SetIsActiveNotifications(configUser.notificaciones_habilitadas);
+            setIsDarkMode(configUser.tema_preferido);
+            console.log("ESTO SE DEBE EJECUTAR PRIMEROOO");
+
+            // if (configUser.notificaciones_habilitadas) {
+            //   getNotifications(); // Solo ejecuta getNotifications si las notificaciones están habilitadas
+            // }
+          } else {
+            console.log("configUser no tiene datos.");
+          }
+        }
+      }
+    };
+
     const getNotifications = async () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
@@ -51,23 +89,28 @@ export default function DrawerNavigator() {
               new Date(a.notificacion.fecha).getTime()
             );
           });
-
+          console.log("SE ESTA EJECUTANDO EL GET NOTIFICACIONESSSSS");
           setNotifications(data);
         }
       }
     };
 
+    getConfigUser();
+
     // Ejecutar la función inicialmente
-    getNotifications();
+
+    // getNotifications();
 
     // Establecer un intervalo para ejecutar getNotifications cada segundo
     const intervalId = setInterval(() => {
-      getNotifications();
+      if (isActiveNotifications) {
+        getNotifications();
+      }
     }, 1000);
 
     // Limpia el intervalo cuando el componente se desmonta o cuando la pantalla ya no está enfocada
     return () => clearInterval(intervalId);
-  }, []);
+  }, [isActiveNotifications, setNotifications, setCountNotifications]);
 
   const NotificationsCountView = ({ count }) => {
     return (

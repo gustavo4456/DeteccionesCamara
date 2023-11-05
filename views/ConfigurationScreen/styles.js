@@ -41,6 +41,12 @@ export const lightStyles = StyleSheet.create({
   settingText: {
     color: "#000000", // Color del texto de configuración en el modo claro
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semitransparente
+  },
 });
 
 // Estilos para el modo oscuro (dark)
@@ -83,5 +89,11 @@ export const darkStyles = StyleSheet.create({
   },
   settingText: {
     color: "#FFFFFF", // Color del texto de configuración en el modo oscuro
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)", // Fondo semitransparente en blanco
   },
 });

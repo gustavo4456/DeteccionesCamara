@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Image,
+  Modal,
+} from "react-native";
 import validator from "validator"; // Importa el paquete validator
 import * as ImagePicker from "expo-image-picker";
 import { isValid, parseISO } from "date-fns";
@@ -13,6 +21,7 @@ import imgUserDefault from "../../assets/usuario.png";
 import { lightStyles, darkStyles } from "./styles";
 import apiUrl from "../../api/apiUrls";
 import CustomButton from "../../components/CustomButton/CustomButton";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const UserProfileScreen = () => {
   const isFocused = useIsFocused();
@@ -37,6 +46,8 @@ const UserProfileScreen = () => {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   const { isDarkMode, setIsDarkMode } = useGlobalContext();
@@ -47,6 +58,7 @@ const UserProfileScreen = () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(apiUrl.getOrUpdateConfig, {
           method: "GET",
@@ -63,11 +75,15 @@ const UserProfileScreen = () => {
           // console.log(userJson.user_data.foto_perfil);
           // && userJson.user_data.foto_perfil
           if (configUser) {
+            setIsLoading(false);
             setNotificationsEnabled(configUser.notificaciones_habilitadas);
             setIsDarkMode(configUser.tema_preferido);
           } else {
+            setIsLoading(false);
             console.log("configUser no tiene datos.");
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
@@ -76,6 +92,7 @@ const UserProfileScreen = () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(apiUrl.checkAuthentication, {
           headers: {
@@ -99,9 +116,15 @@ const UserProfileScreen = () => {
             setProfileImage(apiUrl.base + userJson.user_data.foto_perfil);
 
             setUserId(userJson.user_data.id);
+
+            setIsLoading(false);
+
           } else {
+            setIsLoading(false);
             console.log("userJson no tiene datos.");
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
@@ -141,6 +164,7 @@ const UserProfileScreen = () => {
   };
 
   const handleRegister = async () => {
+    setIsLoading(true);
     // Obtener el token CSRF desde SecureStore
     const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
@@ -190,12 +214,14 @@ const UserProfileScreen = () => {
     if (!profileImage) {
       // Si no se seleccionó una imagen de perfil
       setIsError(true);
+      setIsLoading(false);
       setMessage("Por favor, selecciona una imagen de perfil.");
       return;
     }
 
     if (hasError) {
       setIsError(true);
+      setIsLoading(false);
       setMessage("Por favor, corrige los errores en el formulario.");
       return;
     }
@@ -244,6 +270,7 @@ const UserProfileScreen = () => {
       if (response.ok) {
         console.log(response);
         console.log("Cambio de datos exitoso");
+        setIsLoading(false);
         // setEmail("");
         // setPassword("");
         // setBirthdate("");
@@ -259,8 +286,10 @@ const UserProfileScreen = () => {
         setIsError(true);
         console.error("Error en el registro");
         setMessage("Error en el registro");
+        setIsLoading(false);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error en la solicitud:", error);
     }
   };
@@ -306,7 +335,7 @@ const UserProfileScreen = () => {
       scrollEnabled={true} // Habilita el desplazamiento vertical.
       extraScrollHeight={100} // Proporciona un espacio adicional de desplazamiento vertical de 100 unidades.
     >
-      <Text style={styles.title}>Registro de Usuario {"holaaa " + isDarkMode}</Text>
+      <Text style={styles.title}>Registro de Usuario</Text>
 
       <CustomButton
         text="Seleccionar Imagen de Perfil"
@@ -470,6 +499,12 @@ const UserProfileScreen = () => {
       <Text style={isError ? styles.errorMessage : styles.successMessage}>
         {message}
       </Text>
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </KeyboardAwareScrollView>
   );
 };

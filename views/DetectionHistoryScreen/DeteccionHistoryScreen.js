@@ -17,6 +17,7 @@ import urlApi from "../../api/apiUrls";
 import { lightStyles, darkStyles } from "./styles";
 import CustomDropdown from "../../components/OptionSelector/CustomDropdown";
 import { useGlobalContext } from "../../contexts/GlobalContext";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const DeteccionHistoryScreen = () => {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -27,6 +28,7 @@ const DeteccionHistoryScreen = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const isFocused = useIsFocused();
   const { isDarkMode, setIsDarkMode } = useGlobalContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   const fileUri = FileSystem.cacheDirectory + "tmp.jpg";
 
@@ -41,6 +43,7 @@ const DeteccionHistoryScreen = () => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(urlApi.getOrUpdateConfig, {
           method: "GET",
@@ -53,22 +56,28 @@ const DeteccionHistoryScreen = () => {
 
         if (response.ok) {
           const configUser = await response.json();
-
+          setIsLoading(false);
           // console.log(userJson.user_data.foto_perfil);
           // && userJson.user_data.foto_perfil
           if (configUser) {
+            setIsLoading(false);
             setIsDarkMode(configUser.tema_preferido);
           } else {
+            setIsLoading(false);
             console.log("configUser no tiene datos.");
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
     const getTags = async () => {
       try {
+        setIsLoading(true);
         const storedToken = await SecureStore.getItemAsync("csrfToken");
 
         if (!storedToken) {
+          setIsLoading(false);
           console.error("Token CSRF no disponible.");
           return;
         }
@@ -83,22 +92,27 @@ const DeteccionHistoryScreen = () => {
 
         if (response.ok) {
           const data = await response.json();
+          setIsLoading(false);
           console.log("Etiquetas obtenidas exitosamente.");
           const updatedData = [{ id: "todo", nombre: "Todo" }, ...data];
           setOptions(updatedData);
         } else {
+          setIsLoading(false);
           console.error("Error al obtener las etiquetas.");
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Error en la solicitud:", error);
       }
     };
 
     const getImgDetectionsUser = async () => {
       try {
+        setIsLoading(true);
         const storedToken = await SecureStore.getItemAsync("csrfToken");
 
         if (!storedToken) {
+          setIsLoading(false);
           console.error("Token CSRF no disponible.");
           return;
         }
@@ -119,12 +133,15 @@ const DeteccionHistoryScreen = () => {
 
         if (response.ok) {
           const data = await response.json();
+          setIsLoading(false);
           console.log("Detecciones obtenidas exitosamente.");
           setDetections(data.detecciones);
         } else {
+          setIsLoading(false);
           console.error("Error al obtener las detecciones.");
         }
       } catch (error) {
+        setIsLoading(false);
         console.error("Error en la solicitud:", error);
       }
     };
@@ -168,12 +185,14 @@ const DeteccionHistoryScreen = () => {
 
   const handleDeleteSelected = async () => {
     try {
+      setIsLoading(true);
       console.log("se oprimiooo borrarrrr.");
       const storedToken = await SecureStore.getItemAsync("csrfToken");
 
       console.log("paso el storedtoken wait securstore.");
 
       if (!storedToken) {
+        setIsLoading(false);
         console.error("Token CSRF no disponible.");
         return;
       }
@@ -186,6 +205,7 @@ const DeteccionHistoryScreen = () => {
 
       // Verifica si hay detecciones seleccionadas
       if (selectedDetectionIds.length === 0) {
+        setIsLoading(false);
         console.warn("No se han seleccionado detecciones para eliminar.");
         return;
       }
@@ -224,11 +244,14 @@ const DeteccionHistoryScreen = () => {
         console.log("Paso el resonse.ok");
         // Limpia el array de imágenes seleccionadas
         setSelectedImages([]);
+        setIsLoading(false);
         console.log("PASO toodo");
       } else {
+        setIsLoading(false);
         console.error("Error al eliminar las detecciones.");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error en la solicitud:", error);
     }
   };
@@ -297,6 +320,12 @@ const DeteccionHistoryScreen = () => {
           </Text>
         </TouchableOpacity>
       )}
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </View>
   );
 };

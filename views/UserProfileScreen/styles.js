@@ -62,6 +62,12 @@ export const lightStyles = StyleSheet.create({
     borderRadius: 80,
     marginVertical: 10,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fondo semitransparente
+  },
 });
 
 // Estilos para el tema oscuro
@@ -127,5 +133,11 @@ export const darkStyles = StyleSheet.create({
     height: 150,
     borderRadius: 80,
     marginVertical: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.5)", // Fondo semitransparente en blanco
   },
 });

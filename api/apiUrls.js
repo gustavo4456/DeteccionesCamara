@@ -1,4 +1,5 @@
 const baseUrl = "http://192.168.0.105:8000";
+// const baseUrl = "http://3.134.253.62";
 
 const urls = {
   base: baseUrl,

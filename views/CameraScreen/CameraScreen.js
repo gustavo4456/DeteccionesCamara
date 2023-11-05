@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Modal } from "react-native";
 import CameraPhone from "../../components/CameraPhone/CameraPhone";
 import { useGlobalContext } from "../../contexts/GlobalContext";
 import * as SecureStore from "expo-secure-store";
@@ -9,12 +9,14 @@ import { lightStyles, darkStyles } from "./styles";
 import UploadPhoto from "../../components/UploadPhoto/UploadPhoto";
 import CustomButton from "../../components/CustomButton/CustomButton";
 import apiUrl from "../../api/apiUrls"; // Asegúrate de importar tu URL de la API aquí
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const CamaraScreen = ({ navigation, route }) => {
   const [showCamera, setShowCamera] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const { isDarkMode, setIsDarkMode } = useGlobalContext();
   const isFocused = useIsFocused();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleTakePhoto = () => {
     setShowCamera(true);
@@ -30,6 +32,7 @@ const CamaraScreen = ({ navigation, route }) => {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(apiUrl.getOrUpdateConfig, {
           method: "GET",
@@ -42,14 +45,18 @@ const CamaraScreen = ({ navigation, route }) => {
 
         if (response.ok) {
           const configUser = await response.json();
-
+          setIsLoading(false);
           // console.log(userJson.user_data.foto_perfil);
           // && userJson.user_data.foto_perfil
           if (configUser) {
+            setIsLoading(false);
             setIsDarkMode(configUser.tema_preferido);
           } else {
+            setIsLoading(false);
             console.log("configUser no tiene datos.");
           }
+        } else {
+          setIsLoading(false);
         }
       }
     };
@@ -110,6 +117,12 @@ const CamaraScreen = ({ navigation, route }) => {
           </CustomButton>
         </View>
       )}
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </View>
   );
 };

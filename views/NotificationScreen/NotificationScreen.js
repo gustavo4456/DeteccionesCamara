@@ -11,11 +11,11 @@ import { useIsFocused } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useGlobalContext } from "../../contexts/GlobalContext";
 
-
-import styles from "./styles";
+import { lightStyles, darkStyles } from "./styles";
 
 import * as SecureStore from "expo-secure-store";
 import apiUrl from "../../api/apiUrls";
+import CustomButton from "../../components/CustomButton/CustomButton";
 
 const formatDate = (dateStr) => {
   const options = {
@@ -36,6 +36,9 @@ const NotificationScreen = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Estado para controlar la visibilidad del modal
   const isFocused = useIsFocused();
 
+  const { isActiveNotifications, SetIsActiveNotifications } =
+    useGlobalContext();
+  const { isDarkMode, setIsDarkMode } = useGlobalContext();
 
   const handleNotificationPress = async (
     notification,
@@ -84,6 +87,20 @@ const NotificationScreen = () => {
     return notification;
   };
 
+  const styles = isDarkMode ? darkStyles : lightStyles; // Establece los estilos según el modo
+  const theme = isDarkMode ? "dark" : "light"; // Establece el tema para los botones
+
+  if (!isActiveNotifications) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Notificaciones</Text>
+        <Text style={styles.inactiveNotificationsMessage}>
+          Las notificaciones están desactivadas.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Notificaciones</Text>
@@ -93,7 +110,11 @@ const NotificationScreen = () => {
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
-              handleNotificationPress(item.notificacion.mensaje, item.id, item.leido)
+              handleNotificationPress(
+                item.notificacion.mensaje,
+                item.id,
+                item.leido
+              )
             }
             style={styles.notificationItem}
           >
@@ -139,12 +160,14 @@ const NotificationScreen = () => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalMessage}>{selectedNotification}</Text>
-            <Button
-              title="Cerrar"
+
+            <CustomButton
+              text="Cerrar"
+              theme={theme} // Tema claro (se puede usar "dark" para oscuro)
               onPress={() => {
                 setSelectedNotification(null);
                 setIsModalVisible(false);
-              }}
+              }} // Se asigna la función que deseas ejecutar
             />
           </View>
         </View>

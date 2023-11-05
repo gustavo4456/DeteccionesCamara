@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useState } from "react";
-import { View, TochableOpacity, Image } from "react-native";
+import { View, TochableOpacity, Image, Modal } from "react-native";
 import {
   DrawerContentScrollView,
   DrawerItemList,
@@ -12,12 +12,14 @@ import urlsApi from "../../api/apiUrls";
 //assets
 import logout from "../../assets/logout.png";
 import user from "../../assets/usuario.png";
+import LoadingIndicator from "../LoadingIndicator/LoadingIndicator";
 
 // import auth from "../../api/outhState";
 // import authLogout from "../../api/logout";
 
 export default function CustomDrawerContent(props) {
   const [avatar, setAvatar] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useLayoutEffect(() => {
     const checkAuthentication = async () => {
@@ -25,6 +27,7 @@ export default function CustomDrawerContent(props) {
       const storedCsrfToken = await SecureStore.getItemAsync("csrfToken");
 
       if (storedCsrfToken) {
+        // setIsLoading(true);
         // Realizar la solicitud de comprobación de autenticación
         const response = await fetch(urlsApi.checkAuthentication, {
           headers: {
@@ -35,12 +38,14 @@ export default function CustomDrawerContent(props) {
 
         if (response.ok) {
           const userJson = await response.json();
-
+          // setIsLoading(false);
           console.log(userJson.user_data.foto_perfil);
           if (userJson && userJson.user_data.foto_perfil) {
             setAvatar(urlsApi.base + userJson.user_data.foto_perfil);
             console.log("avatarrrrr", avatar);
           }
+        } else {
+          // setIsLoading(false);
         }
       }
     };
@@ -67,6 +72,8 @@ export default function CustomDrawerContent(props) {
         return;
       }
 
+      setIsLoading(true);
+
       const response = await fetch(urlsApi.logout, {
         method: "POST",
         headers: {
@@ -81,11 +88,14 @@ export default function CustomDrawerContent(props) {
         await SecureStore.deleteItemAsync("csrfToken");
         // Puedes redirigir a otra pantalla si lo deseas
         // navigation.navigate("Login");
+        setIsLoading(false);
         props.navigation.navigate("Login");
       } else {
         console.error("Error al cerrar sesión.");
+        setIsLoading(false);
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error en la solicitud:", error);
     }
   };
@@ -102,7 +112,12 @@ export default function CustomDrawerContent(props) {
       >
         <Image
           source={avatar ? { uri: avatar } : user}
-          style={{ width: 150, height: 150 , borderRadius:80, marginVertical:10 }}
+          style={{
+            width: 150,
+            height: 150,
+            borderRadius: 80,
+            marginVertical: 10,
+          }}
         />
       </View>
       <DrawerContentScrollView {...props}>
@@ -124,6 +139,19 @@ export default function CustomDrawerContent(props) {
         )}
         onPress={handleLogout}
       />
+
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(255, 255, 255, 0.5)",
+          }}
+        >
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </View>
   );
 }

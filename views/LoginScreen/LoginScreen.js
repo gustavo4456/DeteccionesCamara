@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TextInput,
+  Modal,
   Button,
   StyleSheet,
   ActivityIndicator,
@@ -16,6 +17,7 @@ import urlsApi from "../../api/apiUrls";
 import { lightStyles, darkStyles } from "./styles";
 import { useIsFocused } from "@react-navigation/native";
 import CustomButton from "../../components/CustomButton/CustomButton";
+import LoadingIndicator from "../../components/LoadingIndicator/LoadingIndicator";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
@@ -31,6 +33,8 @@ const LoginScreen = ({ navigation }) => {
         setErrorMessage("Por favor, ingresa ambos campos.");
         return;
       }
+
+      setIsLoading(true);
 
       const response = await fetch(urlsApi.login, {
         method: "POST",
@@ -50,11 +54,15 @@ const LoginScreen = ({ navigation }) => {
         // Almacena el token CSRF en SecureStore de Expo
         await SecureStore.setItemAsync("csrfToken", token);
 
+        setIsLoading(false);
+
         navigation.navigate("Home");
       } else {
+        setIsLoading(false);
         setErrorMessage("Credenciales inválidas. Inténtalo de nuevo.");
       }
     } catch (error) {
+      setIsLoading(false);
       console.error("Error en la solicitud:", error);
       setErrorMessage("No se pudo iniciar sesión en este momento.");
     }
@@ -141,13 +149,11 @@ const LoginScreen = ({ navigation }) => {
         />
       </View>
 
-      {isLoading && (
-        <ActivityIndicator
-          size="large"
-          color="#007BFF"
-          style={styles.loading}
-        />
-      )}
+      <Modal animationType="fade" transparent={true} visible={isLoading}>
+        <View style={styles.modalContainer}>
+          <LoadingIndicator />
+        </View>
+      </Modal>
     </View>
   );
 };
